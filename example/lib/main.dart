@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:whitecodel_reels/whitecodel_reels.dart';
 
-List<int> listners = [];
-
 void main() async {
   await Future.delayed(const Duration(seconds: 1));
   runApp(const MyApp());
