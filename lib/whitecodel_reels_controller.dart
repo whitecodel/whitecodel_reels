@@ -113,7 +113,7 @@ class WhiteCodelReelsController extends GetxController
     animationController.repeat();
     videoPlayerControllerList[myindex].play();
     refreshView();
-    listenEvents(myindex);
+    // listenEvents(myindex);
     await initNearByVideos(0);
     loading.value = false;
   }
@@ -156,6 +156,7 @@ class WhiteCodelReelsController extends GetxController
           if (!controller.value.isInitialized) {
             await controller.initialize();
             refreshView();
+            // listenEvents(i);
           }
         }
       }
@@ -165,6 +166,7 @@ class WhiteCodelReelsController extends GetxController
           if (!controller.value.isInitialized) {
             await controller.initialize();
             refreshView();
+            // listenEvents(i);
           }
         }
       }
@@ -210,7 +212,7 @@ class WhiteCodelReelsController extends GetxController
         VideoPlayerController videoPlayerControllerTmp =
             await videoControllerService.getControllerForVideo(videoList[i]);
         videoPlayerControllerList[i] = videoPlayerControllerTmp;
-        listenEvents(i);
+        // listenEvents(i);
         await oldVideoPlayerController.dispose();
         refreshView();
       }
@@ -222,15 +224,19 @@ class WhiteCodelReelsController extends GetxController
         VideoPlayerController videoPlayerControllerTmp =
             await videoControllerService.getControllerForVideo(videoList[i]);
         videoPlayerControllerList[i] = videoPlayerControllerTmp;
-        listenEvents(i);
+        // listenEvents(i);
         await oldVideoPlayerController.dispose();
         refreshView();
       }
     }
   }
 
+  List<int> alreadyListened = [];
+
   // Listen to video events
   listenEvents(i) {
+    if (alreadyListened.contains(i)) return;
+    alreadyListened.add(i);
     var videoPlayerController = videoPlayerControllerList[i];
 
     videoPlayerController.removeListener(() {});
@@ -240,18 +246,19 @@ class WhiteCodelReelsController extends GetxController
               videoPlayerController.value.duration &&
           videoPlayerController.value.duration != Duration.zero) {
         videoPlayerController.seekTo(Duration.zero);
+        videoPlayerController.play();
       }
     });
   }
 
   // Listen to page events
-  pageEventsListen(path) {
-    pageController.addListener(() {
-      visible.value = false;
-      Future.delayed(const Duration(milliseconds: 500), () {
-        loading.value = false;
-      });
-      refreshView();
-    });
-  }
+  // pageEventsListen(path) {
+  //   pageController.addListener(() {
+  //     visible.value = false;
+  //     Future.delayed(const Duration(milliseconds: 500), () {
+  //       loading.value = false;
+  //     });
+  //     refreshView();
+  //   });
+  // }
 }
