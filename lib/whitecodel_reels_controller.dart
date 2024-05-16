@@ -212,7 +212,7 @@ class WhiteCodelReelsController extends GetxController
         VideoPlayerController videoPlayerControllerTmp =
             await videoControllerService.getControllerForVideo(videoList[i]);
         videoPlayerControllerList[i] = videoPlayerControllerTmp;
-        // listenEvents(i);
+        listenEvents(i, force: true);
         await oldVideoPlayerController.dispose();
         refreshView();
       }
@@ -224,7 +224,7 @@ class WhiteCodelReelsController extends GetxController
         VideoPlayerController videoPlayerControllerTmp =
             await videoControllerService.getControllerForVideo(videoList[i]);
         videoPlayerControllerList[i] = videoPlayerControllerTmp;
-        // listenEvents(i);
+        listenEvents(i, force: true);
         await oldVideoPlayerController.dispose();
         refreshView();
       }
@@ -234,8 +234,8 @@ class WhiteCodelReelsController extends GetxController
   List<int> alreadyListened = [];
 
   // Listen to video events
-  listenEvents(i) {
-    if (alreadyListened.contains(i)) return;
+  listenEvents(i, {bool force = false}) {
+    if (alreadyListened.contains(i) && !force) return;
     alreadyListened.add(i);
     var videoPlayerController = videoPlayerControllerList[i];
 
