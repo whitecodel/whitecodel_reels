@@ -14,7 +14,7 @@ To use this package, add `whitecodel_reels` as a dependency in your `pubspec.yam
 
 ```yaml
 dependencies:
-  whitecodel_reels: ^version_number
+  whitecodel_reels: ^0.0.3
 ```
 
 ## Usage Example
@@ -64,4 +64,4 @@ class MyApp extends StatelessWidget {
 - **Speed Optimization**: Improve the performance of the reels widget by optimizing the video loading speed.
 
 ## AUTHOR
-This package is created by [Bhawani Shankar](https://medium.com/@BhawaniTechDev).
+[Bhawani Shankar](https://medium.com/@BhawaniTechDev)

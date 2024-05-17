@@ -1,3 +1,7 @@
+## 0.0.3
+* Listen video events improved
+* Unnecessary logs removed
+
 ## 0.0.2
 * VideoController and PageController available in builder
 * Example code progress indicator added
