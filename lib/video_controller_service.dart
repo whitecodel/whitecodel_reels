@@ -33,7 +33,7 @@ class CachedVideoControllerService extends VideoControllerService {
     // Check if video file was found in cache
     if (fileInfo != null) {
       // Log that video was found in cache
-      log('Video found in cache');
+      // log('Video found in cache');
       // Return VideoPlayerController for the cached file
       return VideoPlayerController.file(fileInfo.file);
     }
