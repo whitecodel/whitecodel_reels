@@ -55,6 +55,9 @@ class WhiteCodelReelsController extends GetxController
   // Index of the last video
   int? lastIndex;
 
+  // Already listened list
+  List<int> alreadyListened = [];
+
   // Constructor
   WhiteCodelReelsController({required this.reelsVideoList});
 
@@ -212,7 +215,7 @@ class WhiteCodelReelsController extends GetxController
         VideoPlayerController videoPlayerControllerTmp =
             await videoControllerService.getControllerForVideo(videoList[i]);
         videoPlayerControllerList[i] = videoPlayerControllerTmp;
-        listenEvents(i, force: true);
+        alreadyListened.remove(i);
         await oldVideoPlayerController.dispose();
         refreshView();
       }
@@ -224,22 +227,18 @@ class WhiteCodelReelsController extends GetxController
         VideoPlayerController videoPlayerControllerTmp =
             await videoControllerService.getControllerForVideo(videoList[i]);
         videoPlayerControllerList[i] = videoPlayerControllerTmp;
-        listenEvents(i, force: true);
+        alreadyListened.remove(i);
         await oldVideoPlayerController.dispose();
         refreshView();
       }
     }
   }
 
-  List<int> alreadyListened = [];
-
   // Listen to video events
   listenEvents(i, {bool force = false}) {
     if (alreadyListened.contains(i) && !force) return;
     alreadyListened.add(i);
     var videoPlayerController = videoPlayerControllerList[i];
-
-    videoPlayerController.removeListener(() {});
 
     videoPlayerController.addListener(() {
       if (videoPlayerController.value.position ==
