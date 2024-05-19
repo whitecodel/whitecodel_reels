@@ -58,6 +58,9 @@ class WhiteCodelReelsController extends GetxController
   // Already listened list
   List<int> alreadyListened = [];
 
+  // Caching video at index
+  List<String> caching = [];
+
   // Constructor
   WhiteCodelReelsController({required this.reelsVideoList});
 
@@ -111,6 +114,7 @@ class WhiteCodelReelsController extends GetxController
     await addVideosController();
     int myindex = 0;
     if (!videoPlayerControllerList[myindex].value.isInitialized) {
+      cacheVideo(myindex);
       await videoPlayerControllerList[myindex].initialize().catchError((e) {});
     }
     animationController.repeat();
@@ -157,6 +161,7 @@ class WhiteCodelReelsController extends GetxController
         if (videoFiles.asMap().containsKey(i)) {
           var controller = videoPlayerControllerList[i];
           if (!controller.value.isInitialized) {
+            cacheVideo(i);
             await controller.initialize();
             refreshView();
             // listenEvents(i);
@@ -167,6 +172,7 @@ class WhiteCodelReelsController extends GetxController
         if (videoList.asMap().containsKey(i)) {
           var controller = videoPlayerControllerList[i];
           if (!controller.value.isInitialized) {
+            cacheVideo(index);
             await controller.initialize();
             refreshView();
             // listenEvents(i);
@@ -197,6 +203,7 @@ class WhiteCodelReelsController extends GetxController
     videoPlayerControllerList[index] = videoPlayerControllerTmp;
     await oldVideoPlayerController.dispose();
     refreshView();
+    cacheVideo(index);
     await videoPlayerControllerTmp
         .initialize()
         .catchError((e) {})
@@ -260,4 +267,23 @@ class WhiteCodelReelsController extends GetxController
   //     refreshView();
   //   });
   // }
+
+  cacheVideo(int index) async {
+    String url = videoList[index];
+    if (caching.contains(url)) return;
+    caching.add(url);
+    final cacheManager = DefaultCacheManager();
+    FileInfo? fileInfo = await cacheManager.getFileFromCache(url);
+    if (fileInfo != null) {
+      return;
+    }
+
+    // print('Downloading video: $index');
+    try {
+      await cacheManager.downloadFile(url);
+    } catch (e) {
+      // print('Error downloading video: $e');
+      caching.remove(url);
+    }
+  }
 }
