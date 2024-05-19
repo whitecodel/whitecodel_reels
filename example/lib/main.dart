@@ -57,6 +57,7 @@ class MyApp extends StatelessWidget {
                     loader: const Center(
                       child: CircularProgressIndicator(),
                     ),
+                    isCaching: false,
                     videoList:
                         List.generate(videos.length, (index) => videos[index]),
                     builder: (context, index, child, videoPlayerController,

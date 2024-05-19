@@ -11,24 +11,27 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
   final BuildContext context;
   final List<String>? videoList;
   final Widget? loader;
+  final bool isCaching;
   final Widget Function(
       BuildContext context,
       int index,
       Widget child,
       VideoPlayerController videoPlayerController,
       PageController pageController)? builder;
+
   const WhiteCodelReels(
       {super.key,
       required this.context,
       this.videoList,
       this.loader,
+      this.isCaching = false,
       this.builder});
 
   @override
   Widget build(BuildContext context) {
     Get.delete<WhiteCodelReelsController>();
-    Get.lazyPut<WhiteCodelReelsController>(
-        () => WhiteCodelReelsController(reelsVideoList: videoList ?? []));
+    Get.lazyPut<WhiteCodelReelsController>(() => WhiteCodelReelsController(
+        reelsVideoList: videoList ?? [], isCaching: isCaching));
     return Scaffold(
       backgroundColor: Colors.black,
       body: Obx(

@@ -40,6 +40,9 @@ class WhiteCodelReelsController extends GetxController
   // List of video URLs
   final List<String> reelsVideoList;
 
+  // isCaching
+  bool isCaching;
+
   // Observable list of video URLs
   RxList<String> videoList = <String>[].obs;
 
@@ -62,7 +65,8 @@ class WhiteCodelReelsController extends GetxController
   List<String> caching = [];
 
   // Constructor
-  WhiteCodelReelsController({required this.reelsVideoList});
+  WhiteCodelReelsController(
+      {required this.reelsVideoList, required this.isCaching});
 
   // Lifecycle method for handling app lifecycle state changes
   @override
@@ -135,8 +139,8 @@ class WhiteCodelReelsController extends GetxController
   addVideosController() async {
     for (var i = 0; i < videoList.length; i++) {
       String videoFile = videoList[i];
-      final controller =
-          await videoControllerService.getControllerForVideo(videoFile);
+      final controller = await videoControllerService.getControllerForVideo(
+          videoFile, isCaching);
       videoPlayerControllerList.add(controller);
     }
   }
@@ -199,7 +203,8 @@ class WhiteCodelReelsController extends GetxController
       return;
     }
     VideoPlayerController videoPlayerControllerTmp =
-        await videoControllerService.getControllerForVideo(videoList[index]);
+        await videoControllerService.getControllerForVideo(
+            videoList[index], isCaching);
     videoPlayerControllerList[index] = videoPlayerControllerTmp;
     await oldVideoPlayerController.dispose();
     refreshView();
@@ -220,7 +225,8 @@ class WhiteCodelReelsController extends GetxController
       if (videoPlayerControllerList.asMap().containsKey(i)) {
         var oldVideoPlayerController = videoPlayerControllerList[i];
         VideoPlayerController videoPlayerControllerTmp =
-            await videoControllerService.getControllerForVideo(videoList[i]);
+            await videoControllerService.getControllerForVideo(
+                videoList[i], isCaching);
         videoPlayerControllerList[i] = videoPlayerControllerTmp;
         alreadyListened.remove(i);
         await oldVideoPlayerController.dispose();
@@ -232,7 +238,8 @@ class WhiteCodelReelsController extends GetxController
       if (videoPlayerControllerList.asMap().containsKey(i)) {
         var oldVideoPlayerController = videoPlayerControllerList[i];
         VideoPlayerController videoPlayerControllerTmp =
-            await videoControllerService.getControllerForVideo(videoList[i]);
+            await videoControllerService.getControllerForVideo(
+                videoList[i], isCaching);
         videoPlayerControllerList[i] = videoPlayerControllerTmp;
         alreadyListened.remove(i);
         await oldVideoPlayerController.dispose();
@@ -269,6 +276,7 @@ class WhiteCodelReelsController extends GetxController
   // }
 
   cacheVideo(int index) async {
+    if (!isCaching) return;
     String url = videoList[index];
     if (caching.contains(url)) return;
     caching.add(url);
@@ -278,11 +286,11 @@ class WhiteCodelReelsController extends GetxController
       return;
     }
 
-    // print('Downloading video: $index');
+    print('Downloading video: $index');
     try {
       await cacheManager.downloadFile(url);
     } catch (e) {
-      // print('Error downloading video: $e');
+      print('Error downloading video: $e');
       caching.remove(url);
     }
   }
