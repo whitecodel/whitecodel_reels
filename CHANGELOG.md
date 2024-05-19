@@ -1,3 +1,7 @@
+# 0.0.4
+* Chaching issue fixed now caching only near by videos
+* Example code updated and video list added into it
+
 ## 0.0.3
 * Listen video events improved
 * Unnecessary logs removed
@@ -11,5 +15,4 @@
 
 
 ## 0.0.1
-
 * Initial release
