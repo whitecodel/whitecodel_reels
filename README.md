@@ -50,6 +50,7 @@ class MyApp extends StatelessWidget {
                 (index) =>
                     'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
               ),
+              isCaching: true,
               builder: (context, index, child, videoPlayerController, pageController) {
                 // Widget builder logic
               }),

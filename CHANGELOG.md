@@ -1,6 +1,7 @@
 # 0.0.4
 * Chaching issue fixed now caching only near by videos
 * Example code updated and video list added into it
+* isCaching flag added default is false
 
 ## 0.0.3
 * Listen video events improved
