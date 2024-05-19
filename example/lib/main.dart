@@ -5,6 +5,33 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:whitecodel_reels/whitecodel_reels.dart';
 
+List<String> videos = [
+  "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4",
+  "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_2mb.mp4",
+  "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_5mb.mp4",
+  "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_10mb.mp4",
+  "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_20mb.mp4",
+  "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_30mb.mp4",
+  "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_1mb.mp4",
+  "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_2mb.mp4",
+  "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_5mb.mp4",
+  "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_10mb.mp4",
+  "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_20mb.mp4",
+  "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_30mb.mp4",
+  "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_1mb.mp4",
+  "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_2mb.mp4",
+  "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_5mb.mp4",
+  "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_10mb.mp4",
+  "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_20mb.mp4",
+  "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_30mb.mp4",
+  "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_1mb.mp4",
+  "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_2mb.mp4",
+  "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_5mb.mp4",
+  "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_10mb.mp4",
+  "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_20mb.mp4",
+  "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_30mb.mp4"
+];
+
 void main() async {
   await Future.delayed(const Duration(seconds: 1));
   runApp(const MyApp());
@@ -30,11 +57,8 @@ class MyApp extends StatelessWidget {
                     loader: const Center(
                       child: CircularProgressIndicator(),
                     ),
-                    videoList: List.generate(
-                      10,
-                      (index) =>
-                          'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
-                    ),
+                    videoList:
+                        List.generate(videos.length, (index) => videos[index]),
                     builder: (context, index, child, videoPlayerController,
                         pageController) {
                       bool isReadMore = false;
@@ -321,13 +345,31 @@ class MyApp extends StatelessWidget {
                                 bottom: 0,
                                 left: 0,
                                 right: 0,
-                                child: LinearProgressIndicator(
-                                  value: snapshot.data ?? 0,
-                                  minHeight: 1.5,
-                                  valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
-                                          Colors.red),
-                                  backgroundColor: Colors.white,
+                                child: SliderTheme(
+                                  data: SliderTheme.of(context).copyWith(
+                                    thumbShape: SliderComponentShape.noThumb,
+                                    overlayShape:
+                                        SliderComponentShape.noOverlay,
+                                    trackHeight: 2,
+                                  ),
+                                  child: Slider(
+                                    value: (snapshot.data ?? 0).clamp(0.0, 1.0),
+                                    min: 0.0,
+                                    max: 1.0,
+                                    activeColor: Colors.red,
+                                    inactiveColor: Colors.white,
+
+                                    onChanged: (value) {
+                                      final position = videoPlayerController
+                                              .value.duration.inMilliseconds *
+                                          value;
+                                      videoPlayerController.seekTo(Duration(
+                                          milliseconds: position.toInt()));
+                                    },
+                                    // onChangeEnd: (value) {
+                                    //   videoPlayerController.play();
+                                    // },
+                                  ),
                                 ),
                               );
                             },
