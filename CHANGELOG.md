@@ -1,5 +1,8 @@
-# 0.0.4
-* Chaching issue fixed now caching only near by videos
+## 0.0.5
+* Now only increase page length when previous video is initialized to avoid heavy memory usage
+
+## 0.0.4
+* Caching issue fixed now caching only near by videos
 * Example code updated and video list added into it
 * isCaching flag added default is false
 
