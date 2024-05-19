@@ -37,7 +37,7 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
       body: Obx(
         () => PageView.builder(
           controller: controller.pageController,
-          itemCount: controller.videoList.length,
+          itemCount: controller.pageCount.value,
           scrollDirection: Axis.vertical,
           itemBuilder: (context, index) {
             return buildTile(index);
@@ -67,6 +67,7 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
           controller.refreshView();
           controller.animationController.repeat();
           controller.initNearByVideos(index);
+          controller.cacheVideo(index);
           controller.visible.value = false;
         }
       },

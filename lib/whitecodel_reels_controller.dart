@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get/get.dart';
@@ -64,6 +65,9 @@ class WhiteCodelReelsController extends GetxController
   // Caching video at index
   List<String> caching = [];
 
+  // pageCount
+  RxInt pageCount = 0.obs;
+
   // Constructor
   WhiteCodelReelsController(
       {required this.reelsVideoList, required this.isCaching});
@@ -119,7 +123,8 @@ class WhiteCodelReelsController extends GetxController
     int myindex = 0;
     if (!videoPlayerControllerList[myindex].value.isInitialized) {
       cacheVideo(myindex);
-      await videoPlayerControllerList[myindex].initialize().catchError((e) {});
+      await videoPlayerControllerList[myindex].initialize();
+      increasePage(myindex + 1);
     }
     animationController.repeat();
     videoPlayerControllerList[myindex].play();
@@ -167,6 +172,7 @@ class WhiteCodelReelsController extends GetxController
           if (!controller.value.isInitialized) {
             cacheVideo(i);
             await controller.initialize();
+            increasePage(i + 1);
             refreshView();
             // listenEvents(i);
           }
@@ -178,6 +184,7 @@ class WhiteCodelReelsController extends GetxController
           if (!controller.value.isInitialized) {
             cacheVideo(index);
             await controller.initialize();
+            increasePage(i + 1);
             refreshView();
             // listenEvents(i);
           }
@@ -283,15 +290,23 @@ class WhiteCodelReelsController extends GetxController
     final cacheManager = DefaultCacheManager();
     FileInfo? fileInfo = await cacheManager.getFileFromCache(url);
     if (fileInfo != null) {
+      log('Video already cached: $index');
       return;
     }
 
-    print('Downloading video: $index');
+    // log('Downloading video: $index');
     try {
       await cacheManager.downloadFile(url);
+      // log('Downloaded video: $index');
     } catch (e) {
-      print('Error downloading video: $e');
+      // log('Error downloading video: $e');
       caching.remove(url);
     }
+  }
+
+  increasePage(v) {
+    if (pageCount.value == videoList.length) return;
+    if (pageCount.value >= v) return;
+    pageCount.value = v;
   }
 }
