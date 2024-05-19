@@ -40,7 +40,7 @@ class CachedVideoControllerService extends VideoControllerService {
 
     try {
       // If video is not found in cache, attempt to download it
-      _cacheManager.downloadFile(url);
+      // _cacheManager.downloadFile(url);
     } catch (e) {
       // Log error if encountered while downloading video
       log('Error downloading video: $e');
