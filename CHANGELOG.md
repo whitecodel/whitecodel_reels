@@ -1,3 +1,6 @@
+## 0.0.6
+* README.md updated
+
 ## 0.0.5
 * Now only increase page length when previous video is initialized to avoid heavy memory usage
 
