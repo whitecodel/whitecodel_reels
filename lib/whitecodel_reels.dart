@@ -98,23 +98,31 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
             controller.animationController.repeat();
           }
         },
-        child: Obx(
-          () => controller.loading.value
-              ? loader ?? const Center(child: CircularProgressIndicator())
-              : builder == null
-                  ? VideoFullScreenPage(
-                      videoPlayerController:
-                          controller.videoPlayerControllerList[index])
-                  : builder!(
-                      context,
-                      index,
-                      VideoFullScreenPage(
-                        videoPlayerController:
-                            controller.videoPlayerControllerList[index],
-                      ),
-                      controller.videoPlayerControllerList[index],
-                      controller.pageController),
-        ),
+        child: Obx(() {
+          if (controller.loading.value ||
+              !controller
+                  .videoPlayerControllerList[index].value.isInitialized) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.red,
+              ),
+            );
+          }
+
+          return builder == null
+              ? VideoFullScreenPage(
+                  videoPlayerController:
+                      controller.videoPlayerControllerList[index])
+              : builder!(
+                  context,
+                  index,
+                  VideoFullScreenPage(
+                    videoPlayerController:
+                        controller.videoPlayerControllerList[index],
+                  ),
+                  controller.videoPlayerControllerList[index],
+                  controller.pageController);
+        }),
       ),
     );
   }

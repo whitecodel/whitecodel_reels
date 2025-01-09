@@ -50,7 +50,7 @@ class WhiteCodelReelsController extends GetxController
   RxList<String> videoList = <String>[].obs;
 
   // Limit for loading nearby videos
-  int loadLimit = 5;
+  int loadLimit = 2;
 
   // Flag for initialization
   bool init = false;
@@ -146,7 +146,7 @@ class WhiteCodelReelsController extends GetxController
     await initNearByVideos(myindex);
     loading.value = false;
 
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(Duration.zero, () {
       pageController.jumpToPage(myindex);
     });
   }
