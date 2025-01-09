@@ -1,6 +1,7 @@
 // Importing necessary packages
 import 'dart:async'; // For asynchronous operations
 import 'dart:developer'; // For logging
+
 import 'package:flutter_cache_manager/flutter_cache_manager.dart'; // For caching files
 import 'package:video_player/video_player.dart'; // For video playback
 
@@ -43,7 +44,7 @@ class CachedVideoControllerService extends VideoControllerService {
 
       try {
         // If video is not found in cache, attempt to download it
-        // _cacheManager.downloadFile(url);
+        _cacheManager.downloadFile(url);
       } catch (e) {
         // Log error if encountered while downloading video
         log('Error downloading video: $e');

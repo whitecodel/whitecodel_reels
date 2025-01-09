@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
+
 import 'video_controller_service.dart';
 
 // Controller class for managing the reels in the app
@@ -68,9 +70,13 @@ class WhiteCodelReelsController extends GetxController
   // pageCount
   RxInt pageCount = 0.obs;
 
+  final int startIndex;
+
   // Constructor
   WhiteCodelReelsController(
-      {required this.reelsVideoList, required this.isCaching});
+      {required this.reelsVideoList,
+      required this.isCaching,
+      this.startIndex = 0});
 
   // Lifecycle method for handling app lifecycle state changes
   @override
@@ -97,7 +103,7 @@ class WhiteCodelReelsController extends GetxController
       curve: Curves.easeIn,
     );
     // Initialize service and start timer
-    initService();
+    initService(startIndex: startIndex);
     timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       if (lastIndex != null) {
         initNearByVideos(lastIndex!);
@@ -114,24 +120,35 @@ class WhiteCodelReelsController extends GetxController
       videoPlayerControllerList[i].pause();
       videoPlayerControllerList[i].dispose();
     }
+    timer?.cancel();
     super.onClose();
   }
 
   // Initialize video service and load videos
-  initService() async {
+  initService({int startIndex = 0}) async {
     await addVideosController();
-    int myindex = 0;
-    if (!videoPlayerControllerList[myindex].value.isInitialized) {
-      cacheVideo(myindex);
-      await videoPlayerControllerList[myindex].initialize();
-      increasePage(myindex + 1);
+    int myindex = startIndex;
+
+    try {
+      if (!videoPlayerControllerList[myindex].value.isInitialized) {
+        cacheVideo(myindex);
+        await videoPlayerControllerList[myindex].initialize();
+        increasePage(myindex + 1);
+      }
+    } catch (e) {
+      log('Error initializing video at index $myindex: $e');
     }
+
     animationController.repeat();
     videoPlayerControllerList[myindex].play();
     refreshView();
     // listenEvents(myindex);
-    await initNearByVideos(0);
+    await initNearByVideos(myindex);
     loading.value = false;
+
+    Future.delayed(const Duration(seconds: 1), () {
+      pageController.jumpToPage(myindex);
+    });
   }
 
   // Refresh loading state
@@ -182,7 +199,10 @@ class WhiteCodelReelsController extends GetxController
         if (videoList.asMap().containsKey(i)) {
           var controller = videoPlayerControllerList[i];
           if (!controller.value.isInitialized) {
-            cacheVideo(index);
+            if (!caching.contains(videoList[index])) {
+              cacheVideo(index);
+            }
+
             await controller.initialize();
             increasePage(i + 1);
             refreshView();
@@ -215,7 +235,9 @@ class WhiteCodelReelsController extends GetxController
     videoPlayerControllerList[index] = videoPlayerControllerTmp;
     await oldVideoPlayerController.dispose();
     refreshView();
-    cacheVideo(index);
+    if (!caching.contains(videoList[index])) {
+      cacheVideo(index);
+    }
     await videoPlayerControllerTmp
         .initialize()
         .catchError((e) {})
