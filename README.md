@@ -17,14 +17,14 @@ To use this package, add `whitecodel_reels` as a dependency in your `pubspec.yam
 
 ```yaml
 dependencies:
-  whitecodel_reels: ^0.0.8
+  whitecodel_reels: ^0.0.8+1
 ```
 
 ## Usage Example
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:whitecodel_reels/models/video_model.dart';
 import 'package:whitecodel_reels/whitecodel_reels.dart';
 
 void main() async {
@@ -51,12 +51,15 @@ class MyApp extends StatelessWidget {
               ),
               videoList: List.generate(
                 10,
-                (index) =>
-                    'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
+                (index) => VideoModel(
+                    url:
+                        'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4'),
               ),
               isCaching: true,
-              builder: (context, index, child, videoPlayerController, pageController) {
+              builder: (context, index, child, videoPlayerController,
+                  pageController) {
                 // Widget builder logic
+                return Container();
               }),
         ));
   }

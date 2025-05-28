@@ -1,3 +1,7 @@
+## 0.0.8+1
+
+- README.md updated with new features and usage instructions
+
 ## 0.0.8
 
 - Added support for passing additional values such as HTTP headers and video player options via the VideoModel object
