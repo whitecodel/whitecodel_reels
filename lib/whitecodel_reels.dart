@@ -6,12 +6,30 @@ import 'package:visibility_detector/visibility_detector.dart';
 import 'models/video_model.dart';
 import 'whitecodel_reels_controller.dart';
 
+/// A widget that displays a scrollable list of video reels.
+///
+/// This widget uses [GetX] for state management and provides a TikTok-like
+/// experience with vertical scrolling between videos.
 class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
+  /// The build context of the widget.
   final BuildContext context;
+
+  /// List of video models to be displayed in the reels.
   final List<VideoModel>? videoList;
+
+  /// Custom loading widget to display while videos are initializing.
   final Widget? loader;
+
+  /// Whether to cache videos for faster future playback.
   final bool isCaching;
+
+  /// The initial index to start playing videos from.
   final int startIndex;
+
+  /// An optional builder function to customize the appearance of each video item.
+  ///
+  /// If provided, this function will be called for each video item, allowing
+  /// custom UI to be built around the video player.
   final Widget Function(
     BuildContext context,
     int index,
@@ -21,6 +39,14 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
   )?
   builder;
 
+  /// Creates a new [WhiteCodelReels] widget.
+  ///
+  /// [context] is required to build the widget tree.
+  /// [videoList] contains the list of videos to display.
+  /// [loader] is an optional custom loading indicator.
+  /// [isCaching] determines whether videos should be cached.
+  /// [builder] is an optional function to customize video item appearance.
+  /// [startIndex] is the initial video index to display (defaults to 0).
   const WhiteCodelReels({
     super.key,
     required this.context,
@@ -56,6 +82,10 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
     );
   }
 
+  /// Builds a video tile with visibility detection.
+  ///
+  /// This method creates a visibility detector that manages video playback
+  /// based on whether the video is currently visible to the user.
   VisibilityDetector buildTile(int index) {
     return VisibilityDetector(
       key: Key(index.toString()),
@@ -132,9 +162,18 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
   }
 }
 
+/// A widget that displays a full-screen video with play/pause controls.
+///
+/// This widget takes a [VideoPlayerController] and displays the video
+/// with a centered play/pause button that appears when the user
+/// interacts with the video.
 class VideoFullScreenPage extends StatelessWidget {
+  /// The controller for the video being displayed.
   final VideoPlayerController videoPlayerController;
 
+  /// Creates a new [VideoFullScreenPage] widget.
+  ///
+  /// [videoPlayerController] is required and must be initialized before use.
   const VideoFullScreenPage({super.key, required this.videoPlayerController});
 
   @override

@@ -7,20 +7,34 @@ import 'package:video_player/video_player.dart'; // For video playback
 
 import 'models/video_model.dart'; // For video model
 
-// Abstract class defining a service for obtaining video controllers
+/// A service that provides methods to obtain video player controllers.
+///
+/// This abstract class defines the contract for services that manage
+/// the creation and configuration of video player controllers.
 abstract class VideoControllerService {
-  // Method to get a VideoPlayerController for a given video model
+  /// Gets a VideoPlayerController for a given video model.
+  ///
+  /// [videoModel] contains the video URL and additional configuration options.
+  /// [isCaching] determines whether the video should be cached for future use.
+  ///
+  /// Returns a [VideoPlayerController] configured for the given video.
   Future<VideoPlayerController> getControllerForVideo(
     VideoModel videoModel,
     bool isCaching,
   );
 }
 
-// Implementation of VideoControllerService that uses caching
+/// An implementation of [VideoControllerService] that supports video caching.
+///
+/// This service uses a [BaseCacheManager] to store and retrieve videos,
+/// improving performance by reducing network requests for previously viewed videos.
 class CachedVideoControllerService extends VideoControllerService {
-  final BaseCacheManager _cacheManager; // Cache manager instance
+  /// The cache manager used to store and retrieve video files.
+  final BaseCacheManager _cacheManager;
 
-  // Constructor requiring a cache manager instance
+  /// Creates a new [CachedVideoControllerService] with the provided cache manager.
+  ///
+  /// [_cacheManager] is responsible for handling the caching operations.
   CachedVideoControllerService(this._cacheManager);
 
   @override
