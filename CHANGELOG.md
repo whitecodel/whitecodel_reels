@@ -1,3 +1,10 @@
+## 0.0.7
+* Upgraded Gradle wrapper to 8.4 and Android Gradle plugin to 8.3.0
+* Upgraded Kotlin to 1.8.10
+* Refactored Dart code for readability and maintainability
+* Enhanced video player functionality in WhiteCodelReels widget
+* Improved controller methods for async handling and clarity
+
 ## 0.0.6
 * README.md updated
 

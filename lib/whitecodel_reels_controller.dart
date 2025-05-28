@@ -73,10 +73,11 @@ class WhiteCodelReelsController extends GetxController
   final int startIndex;
 
   // Constructor
-  WhiteCodelReelsController(
-      {required this.reelsVideoList,
-      required this.isCaching,
-      this.startIndex = 0});
+  WhiteCodelReelsController({
+    required this.reelsVideoList,
+    required this.isCaching,
+    this.startIndex = 0,
+  });
 
   // Lifecycle method for handling app lifecycle state changes
   @override
@@ -94,10 +95,13 @@ class WhiteCodelReelsController extends GetxController
   @override
   void onInit() {
     super.onInit();
+    initialLog();
     videoList.addAll(reelsVideoList);
     // Initialize animation controller
-    animationController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 5));
+    animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    );
     animation = CurvedAnimation(
       parent: animationController,
       curve: Curves.easeIn,
@@ -125,7 +129,7 @@ class WhiteCodelReelsController extends GetxController
   }
 
   // Initialize video service and load videos
-  initService({int startIndex = 0}) async {
+  Future<void> initService({int startIndex = 0}) async {
     await addVideosController();
     int myindex = startIndex;
 
@@ -151,24 +155,57 @@ class WhiteCodelReelsController extends GetxController
     });
   }
 
+  void initialLog() {
+    debugPrint('''
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✨ Thank You for using WhiteCodel Reels! ✨
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 **Found a bug?**  
+Report issues here:  
+👉 https://github.com/whitecodel/whitecodel_reels/issues
+
+🔧 **Want to contribute?**  
+Submit a pull request:  
+👉 https://github.com/whitecodel/whitecodel_reels
+
+💡 **Learn more about WhiteCodel Reels:**  
+Medium article:  
+👉 https://medium.com/whitecodel/how-to-implement-instagram-like-reels-in-your-flutter-app-2d4f53d3f899
+
+👨‍💻 **Crafted with ❤️ by Bhawani Shankar**
+
+📬 **Connect with me:**  
+LinkedIn:   https://www.linkedin.com/in/bhawanitechdev/  
+Twitter:    https://twitter.com/bhawanitechdev  
+Instagram:  https://www.instagram.com/bhawani_tech_dev
+GitHub:     https://github.com/whitecodel  
+Medium:     https://medium.com/@BhawaniTechDev
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+''');
+  }
+
   // Refresh loading state
-  refreshView() {
+  void refreshView() {
     loading.value = true;
     loading.value = false;
   }
 
   // Add video controllers
-  addVideosController() async {
+  Future<void> addVideosController() async {
     for (var i = 0; i < videoList.length; i++) {
       String videoFile = videoList[i];
       final controller = await videoControllerService.getControllerForVideo(
-          videoFile, isCaching);
+        videoFile,
+        isCaching,
+      );
       videoPlayerControllerList.add(controller);
     }
   }
 
   // Initialize nearby videos
-  initNearByVideos(int index) async {
+  Future<void> initNearByVideos(int index) async {
     if (init) {
       lastIndex = index;
       return;
@@ -222,7 +259,7 @@ class WhiteCodelReelsController extends GetxController
   }
 
   // Try initializing video at index
-  tryInit(int index) async {
+  Future<void> tryInit(int index) async {
     var oldVideoPlayerController = videoPlayerControllerList[index];
     if (oldVideoPlayerController.value.isInitialized) {
       oldVideoPlayerController.play();
@@ -231,31 +268,34 @@ class WhiteCodelReelsController extends GetxController
     }
     VideoPlayerController videoPlayerControllerTmp =
         await videoControllerService.getControllerForVideo(
-            videoList[index], isCaching);
+          videoList[index],
+          isCaching,
+        );
     videoPlayerControllerList[index] = videoPlayerControllerTmp;
     await oldVideoPlayerController.dispose();
     refreshView();
     if (!caching.contains(videoList[index])) {
       cacheVideo(index);
     }
-    await videoPlayerControllerTmp
-        .initialize()
-        .catchError((e) {})
-        .then((value) {
+    await videoPlayerControllerTmp.initialize().catchError((e) {}).then((
+      value,
+    ) {
       videoPlayerControllerTmp.play();
       refresh();
     });
   }
 
   // Dispose nearby old video controllers
-  disposeNearByOldVideoControllers(int index) async {
+  Future<void> disposeNearByOldVideoControllers(int index) async {
     loading.value = false;
     for (var i = index - loadLimit; i > 0; i--) {
       if (videoPlayerControllerList.asMap().containsKey(i)) {
         var oldVideoPlayerController = videoPlayerControllerList[i];
         VideoPlayerController videoPlayerControllerTmp =
             await videoControllerService.getControllerForVideo(
-                videoList[i], isCaching);
+              videoList[i],
+              isCaching,
+            );
         videoPlayerControllerList[i] = videoPlayerControllerTmp;
         alreadyListened.remove(i);
         await oldVideoPlayerController.dispose();
@@ -268,7 +308,9 @@ class WhiteCodelReelsController extends GetxController
         var oldVideoPlayerController = videoPlayerControllerList[i];
         VideoPlayerController videoPlayerControllerTmp =
             await videoControllerService.getControllerForVideo(
-                videoList[i], isCaching);
+              videoList[i],
+              isCaching,
+            );
         videoPlayerControllerList[i] = videoPlayerControllerTmp;
         alreadyListened.remove(i);
         await oldVideoPlayerController.dispose();
@@ -278,7 +320,7 @@ class WhiteCodelReelsController extends GetxController
   }
 
   // Listen to video events
-  listenEvents(i, {bool force = false}) {
+  void listenEvents(int i, {bool force = false}) {
     if (alreadyListened.contains(i) && !force) return;
     alreadyListened.add(i);
     var videoPlayerController = videoPlayerControllerList[i];
@@ -304,7 +346,7 @@ class WhiteCodelReelsController extends GetxController
   //   });
   // }
 
-  cacheVideo(int index) async {
+  Future<void> cacheVideo(int index) async {
     if (!isCaching) return;
     String url = videoList[index];
     if (caching.contains(url)) return;
@@ -326,7 +368,7 @@ class WhiteCodelReelsController extends GetxController
     }
   }
 
-  increasePage(v) {
+  void increasePage(int v) {
     if (pageCount.value == videoList.length) return;
     if (pageCount.value >= v) return;
     pageCount.value = v;

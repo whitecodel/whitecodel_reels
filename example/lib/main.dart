@@ -1,3 +1,5 @@
+// ignore_for_file: dead_code
+
 import 'dart:async';
 import 'dart:io';
 
@@ -97,9 +99,12 @@ class MyApp extends StatelessWidget {
                                             begin: Alignment.topCenter,
                                             end: Alignment.bottomCenter,
                                             colors: [
-                                              Colors.black.withOpacity(0.0),
-                                              Colors.black.withOpacity(0.2),
-                                              Colors.black.withOpacity(0.5),
+                                              Colors.black
+                                                  .withValues(alpha: 0.0),
+                                              Colors.black
+                                                  .withValues(alpha: 0.2),
+                                              Colors.black
+                                                  .withValues(alpha: 0.5),
                                             ],
                                           ),
                                         ),

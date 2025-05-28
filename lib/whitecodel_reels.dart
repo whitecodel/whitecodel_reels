@@ -1,5 +1,3 @@
-library whitecodel_reels;
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
@@ -19,7 +17,8 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
     Widget child,
     VideoPlayerController videoPlayerController,
     PageController pageController,
-  )? builder;
+  )?
+  builder;
 
   const WhiteCodelReels({
     super.key,
@@ -34,11 +33,13 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
   @override
   Widget build(BuildContext context) {
     Get.delete<WhiteCodelReelsController>();
-    Get.lazyPut<WhiteCodelReelsController>(() => WhiteCodelReelsController(
-          reelsVideoList: videoList ?? [],
-          isCaching: isCaching,
-          startIndex: startIndex,
-        ));
+    Get.lazyPut<WhiteCodelReelsController>(
+      () => WhiteCodelReelsController(
+        reelsVideoList: videoList ?? [],
+        isCaching: isCaching,
+        startIndex: startIndex,
+      ),
+    );
     return Scaffold(
       backgroundColor: Colors.black,
       body: Obx(
@@ -54,7 +55,7 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
     );
   }
 
-  buildTile(index) {
+  VisibilityDetector buildTile(int index) {
     return VisibilityDetector(
       key: Key(index.toString()),
       onVisibilityChanged: (visibilityInfo) {
@@ -101,27 +102,29 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
         child: Obx(() {
           if (controller.loading.value ||
               !controller
-                  .videoPlayerControllerList[index].value.isInitialized) {
+                  .videoPlayerControllerList[index]
+                  .value
+                  .isInitialized) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: Colors.red,
-              ),
+              child: CircularProgressIndicator(color: Colors.red),
             );
           }
 
           return builder == null
               ? VideoFullScreenPage(
-                  videoPlayerController:
-                      controller.videoPlayerControllerList[index])
+                videoPlayerController:
+                    controller.videoPlayerControllerList[index],
+              )
               : builder!(
-                  context,
-                  index,
-                  VideoFullScreenPage(
-                    videoPlayerController:
-                        controller.videoPlayerControllerList[index],
-                  ),
-                  controller.videoPlayerControllerList[index],
-                  controller.pageController);
+                context,
+                index,
+                VideoFullScreenPage(
+                  videoPlayerController:
+                      controller.videoPlayerControllerList[index],
+                ),
+                controller.videoPlayerControllerList[index],
+                controller.pageController,
+              );
         }),
       ),
     );
@@ -145,7 +148,8 @@ class VideoFullScreenPage extends StatelessWidget {
           child: FittedBox(
             fit: BoxFit.cover,
             child: SizedBox(
-              width: MediaQuery.of(context).size.height *
+              width:
+                  MediaQuery.of(context).size.height *
                   videoPlayerController.value.aspectRatio,
               height: MediaQuery.of(context).size.height,
               child: VideoPlayer(videoPlayerController),
@@ -168,23 +172,21 @@ class VideoFullScreenPage extends StatelessWidget {
                       color: Colors.black38,
                       shape: BoxShape.circle,
                       border: Border.fromBorderSide(
-                        BorderSide(
-                          color: Colors.white,
-                          width: 1,
-                        ),
+                        BorderSide(color: Colors.white, width: 1),
                       ),
                     ),
-                    child: videoPlayerController.value.isPlaying
-                        ? const Icon(
-                            Icons.play_arrow,
-                            color: Colors.white,
-                            size: 40,
-                          )
-                        : const Icon(
-                            Icons.pause,
-                            color: Colors.white,
-                            size: 40,
-                          ),
+                    child:
+                        videoPlayerController.value.isPlaying
+                            ? const Icon(
+                              Icons.play_arrow,
+                              color: Colors.white,
+                              size: 40,
+                            )
+                            : const Icon(
+                              Icons.pause,
+                              color: Colors.white,
+                              size: 40,
+                            ),
                   ),
                 ),
               ),
