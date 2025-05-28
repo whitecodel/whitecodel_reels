@@ -14,7 +14,7 @@ To use this package, add `whitecodel_reels` as a dependency in your `pubspec.yam
 
 ```yaml
 dependencies:
-  whitecodel_reels: ^0.0.6
+  whitecodel_reels: ^0.0.7
 ```
 
 ## Usage Example
