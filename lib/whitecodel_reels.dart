@@ -3,11 +3,12 @@ import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
+import 'models/video_model.dart';
 import 'whitecodel_reels_controller.dart';
 
 class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
   final BuildContext context;
-  final List<String>? videoList;
+  final List<VideoModel>? videoList;
   final Widget? loader;
   final bool isCaching;
   final int startIndex;
@@ -62,7 +63,6 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
         if (visibilityInfo.visibleFraction < 0.5) {
           controller.videoPlayerControllerList[index].seekTo(Duration.zero);
           controller.videoPlayerControllerList[index].pause();
-          // controller.visible.value = true;
           controller.refreshView();
           controller.animationController.stop();
         } else {
@@ -75,7 +75,7 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
           controller.refreshView();
           controller.animationController.repeat();
           controller.initNearByVideos(index);
-          if (!controller.caching.contains(controller.videoList[index])) {
+          if (!controller.caching.contains(controller.videoList[index].url)) {
             controller.cacheVideo(index);
           }
           controller.visible.value = false;
@@ -105,26 +105,27 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
                   .videoPlayerControllerList[index]
                   .value
                   .isInitialized) {
-            return const Center(
-              child: CircularProgressIndicator(color: Colors.red),
-            );
+            return loader ??
+                const Center(
+                  child: CircularProgressIndicator(color: Colors.red),
+                );
           }
 
           return builder == null
               ? VideoFullScreenPage(
-                videoPlayerController:
-                    controller.videoPlayerControllerList[index],
-              )
-              : builder!(
-                context,
-                index,
-                VideoFullScreenPage(
                   videoPlayerController:
                       controller.videoPlayerControllerList[index],
-                ),
-                controller.videoPlayerControllerList[index],
-                controller.pageController,
-              );
+                )
+              : builder!(
+                  context,
+                  index,
+                  VideoFullScreenPage(
+                    videoPlayerController:
+                        controller.videoPlayerControllerList[index],
+                  ),
+                  controller.videoPlayerControllerList[index],
+                  controller.pageController,
+                );
         }),
       ),
     );
@@ -175,18 +176,13 @@ class VideoFullScreenPage extends StatelessWidget {
                         BorderSide(color: Colors.white, width: 1),
                       ),
                     ),
-                    child:
-                        videoPlayerController.value.isPlaying
-                            ? const Icon(
-                              Icons.play_arrow,
-                              color: Colors.white,
-                              size: 40,
-                            )
-                            : const Icon(
-                              Icons.pause,
-                              color: Colors.white,
-                              size: 40,
-                            ),
+                    child: videoPlayerController.value.isPlaying
+                        ? const Icon(Icons.pause, color: Colors.white, size: 40)
+                        : const Icon(
+                            Icons.play_arrow,
+                            color: Colors.white,
+                            size: 40,
+                          ),
                   ),
                 ),
               ),

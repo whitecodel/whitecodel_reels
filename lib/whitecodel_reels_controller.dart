@@ -6,6 +6,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
+import 'models/video_model.dart';
 import 'video_controller_service.dart';
 
 // Controller class for managing the reels in the app
@@ -40,14 +41,14 @@ class WhiteCodelReelsController extends GetxController
   // Limit for loading videos
   int limit = 10;
 
-  // List of video URLs
-  final List<String> reelsVideoList;
+  // List of video models
+  final List<VideoModel> reelsVideoList;
 
   // isCaching
   bool isCaching;
 
-  // Observable list of video URLs
-  RxList<String> videoList = <String>[].obs;
+  // Observable list of video models
+  RxList<VideoModel> videoList = <VideoModel>[].obs;
 
   // Limit for loading nearby videos
   int loadLimit = 2;
@@ -195,9 +196,9 @@ Medium:     https://medium.com/@BhawaniTechDev
   // Add video controllers
   Future<void> addVideosController() async {
     for (var i = 0; i < videoList.length; i++) {
-      String videoFile = videoList[i];
+      VideoModel videoModel = videoList[i];
       final controller = await videoControllerService.getControllerForVideo(
-        videoFile,
+        videoModel,
         isCaching,
       );
       videoPlayerControllerList.add(controller);
@@ -218,7 +219,7 @@ Medium:     https://medium.com/@BhawaniTechDev
     try {
       var currentPage = index;
       var maxPage = currentPage + loadLimit;
-      List<String> videoFiles = videoList;
+      List<VideoModel> videoFiles = videoList;
 
       for (var i = currentPage; i < maxPage; i++) {
         if (videoFiles.asMap().containsKey(i)) {
@@ -236,7 +237,7 @@ Medium:     https://medium.com/@BhawaniTechDev
         if (videoList.asMap().containsKey(i)) {
           var controller = videoPlayerControllerList[i];
           if (!controller.value.isInitialized) {
-            if (!caching.contains(videoList[index])) {
+            if (!caching.contains(videoList[index].url)) {
               cacheVideo(index);
             }
 
@@ -274,7 +275,7 @@ Medium:     https://medium.com/@BhawaniTechDev
     videoPlayerControllerList[index] = videoPlayerControllerTmp;
     await oldVideoPlayerController.dispose();
     refreshView();
-    if (!caching.contains(videoList[index])) {
+    if (!caching.contains(videoList[index].url)) {
       cacheVideo(index);
     }
     await videoPlayerControllerTmp.initialize().catchError((e) {}).then((
@@ -348,7 +349,7 @@ Medium:     https://medium.com/@BhawaniTechDev
 
   Future<void> cacheVideo(int index) async {
     if (!isCaching) return;
-    String url = videoList[index];
+    String url = videoList[index].url;
     if (caching.contains(url)) return;
     caching.add(url);
     final cacheManager = DefaultCacheManager();

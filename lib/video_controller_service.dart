@@ -5,11 +5,15 @@ import 'dart:developer'; // For logging
 import 'package:flutter_cache_manager/flutter_cache_manager.dart'; // For caching files
 import 'package:video_player/video_player.dart'; // For video playback
 
+import 'models/video_model.dart'; // For video model
+
 // Abstract class defining a service for obtaining video controllers
 abstract class VideoControllerService {
-  // Method to get a VideoPlayerController for a given video URL
+  // Method to get a VideoPlayerController for a given video model
   Future<VideoPlayerController> getControllerForVideo(
-      String url, bool isCaching);
+    VideoModel videoModel,
+    bool isCaching,
+  );
 }
 
 // Implementation of VideoControllerService that uses caching
@@ -21,10 +25,14 @@ class CachedVideoControllerService extends VideoControllerService {
 
   @override
   Future<VideoPlayerController> getControllerForVideo(
-      String url, bool isCaching) async {
+    VideoModel videoModel,
+    bool isCaching,
+  ) async {
+    final url = videoModel.url;
+
     if (isCaching) {
       FileInfo?
-          fileInfo; // Variable to store file info if video is found in cache
+      fileInfo; // Variable to store file info if video is found in cache
 
       try {
         // Attempt to retrieve video file from cache
@@ -36,10 +44,11 @@ class CachedVideoControllerService extends VideoControllerService {
 
       // Check if video file was found in cache
       if (fileInfo != null) {
-        // Log that video was found in cache
-        // log('Video found in cache');
-        // Return VideoPlayerController for the cached file
-        return VideoPlayerController.file(fileInfo.file);
+        // Return VideoPlayerController for the cached file with additional options
+        return VideoPlayerController.file(
+          fileInfo.file,
+          videoPlayerOptions: videoModel.videoPlayerOptions,
+        );
       }
 
       try {
@@ -51,7 +60,11 @@ class CachedVideoControllerService extends VideoControllerService {
       }
     }
 
-    // Return VideoPlayerController for the video from the network
-    return VideoPlayerController.networkUrl(Uri.parse(url));
+    // Return VideoPlayerController for the video from the network with additional options
+    return VideoPlayerController.networkUrl(
+      Uri.parse(url),
+      httpHeaders: videoModel.httpHeaders ?? {},
+      videoPlayerOptions: videoModel.videoPlayerOptions,
+    );
   }
 }

@@ -5,33 +5,87 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:whitecodel_reels/models/video_model.dart';
 import 'package:whitecodel_reels/whitecodel_reels.dart';
 
-List<String> videos = [
-  "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4",
-  "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_2mb.mp4",
-  "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_5mb.mp4",
-  "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_10mb.mp4",
-  "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_20mb.mp4",
-  "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_30mb.mp4",
-  "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_1mb.mp4",
-  "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_2mb.mp4",
-  "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_5mb.mp4",
-  "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_10mb.mp4",
-  "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_20mb.mp4",
-  "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_30mb.mp4",
-  "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_1mb.mp4",
-  "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_2mb.mp4",
-  "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_5mb.mp4",
-  "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_10mb.mp4",
-  "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_20mb.mp4",
-  "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_30mb.mp4",
-  "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_1mb.mp4",
-  "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_2mb.mp4",
-  "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_5mb.mp4",
-  "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_10mb.mp4",
-  "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_20mb.mp4",
-  "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_30mb.mp4"
+// Example of creating a list of VideoModel objects instead of just URLs
+List<VideoModel> videoModels = [
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4"),
+  VideoModel(
+    url:
+        "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_2mb.mp4",
+    httpHeaders: {'Authorization': 'Bearer example_token'},
+  ),
+  VideoModel(
+    url:
+        "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_5mb.mp4",
+  ),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_10mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_20mb.mp4"),
+  VideoModel(
+    url:
+        "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_30mb.mp4",
+  ),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_1mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_2mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_5mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_10mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_20mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_30mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_1mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_2mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_5mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_10mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_20mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/360/big_buck_bunny_360p_30mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_1mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_2mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_5mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_10mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_20mb.mp4"),
+  VideoModel(
+      url:
+          "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_30mb.mp4"),
 ];
 
 void main() async {
@@ -58,11 +112,12 @@ class MyApp extends StatelessWidget {
                     key: UniqueKey(),
                     context: context,
                     loader: const Center(
-                      child: CircularProgressIndicator(),
+                      child: CircularProgressIndicator(
+                        color: Colors.amber,
+                      ),
                     ),
                     isCaching: false,
-                    videoList:
-                        List.generate(videos.length, (index) => videos[index]),
+                    videoList: videoModels,
                     builder: (context, index, child, videoPlayerController,
                         pageController) {
                       bool isReadMore = false;
@@ -127,7 +182,7 @@ class MyApp extends StatelessWidget {
                                                         const EdgeInsets.all(
                                                             8.0),
                                                     child: Text(
-                                                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+                                                      'Video ${index + 1}: ${videoModels[index].url}\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
                                                       maxLines:
                                                           isReadMore ? 100 : 2,
                                                       overflow:
@@ -207,7 +262,6 @@ class MyApp extends StatelessWidget {
                             right: 10,
                             child: SizedBox(
                               height: 450,
-                              // color: Colors.red.withOpacity(0.5),
                               child: Column(
                                 children: [
                                   Column(
@@ -365,7 +419,6 @@ class MyApp extends StatelessWidget {
                                     max: 1.0,
                                     activeColor: Colors.red,
                                     inactiveColor: Colors.white,
-
                                     onChanged: (value) {
                                       final position = videoPlayerController
                                               .value.duration.inMilliseconds *
@@ -373,9 +426,6 @@ class MyApp extends StatelessWidget {
                                       videoPlayerController.seekTo(Duration(
                                           milliseconds: position.toInt()));
                                     },
-                                    // onChangeEnd: (value) {
-                                    //   videoPlayerController.play();
-                                    // },
                                   ),
                                 ),
                               );
