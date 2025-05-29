@@ -51,7 +51,7 @@ class WhiteCodelReelsController extends GetxController
   RxList<VideoModel> videoList = <VideoModel>[].obs;
 
   // Limit for loading nearby videos
-  int loadLimit = 2;
+  int loadLimit = 5;
 
   // Flag for initialization
   bool init = false;
