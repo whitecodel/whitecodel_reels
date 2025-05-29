@@ -2,10 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
 
 /// A local proxy server that streams video content while caching it simultaneously.
 class VideoProxyServer {
