@@ -352,21 +352,12 @@ Medium:     https://medium.com/@BhawaniTechDev
     String url = videoList[index].url;
     if (caching.contains(url)) return;
     caching.add(url);
-    final cacheManager = DefaultCacheManager();
-    FileInfo? fileInfo = await cacheManager.getFileFromCache(url);
-    if (fileInfo != null) {
-      log('Video already cached: $index');
-      return;
-    }
 
-    // log('Downloading video: $index');
-    try {
-      await cacheManager.downloadFile(url);
-      // log('Downloaded video: $index');
-    } catch (e) {
-      // log('Error downloading video: $e');
-      caching.remove(url);
-    }
+    // No need for explicit caching here anymore
+    // The proxy server handles caching while streaming
+
+    // Just mark this URL as being handled
+    log('Video being cached through proxy: $index');
   }
 
   void increasePage(int v) {

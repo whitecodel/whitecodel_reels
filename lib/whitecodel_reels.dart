@@ -98,16 +98,16 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
         } else {
           controller.listenEvents(index);
           controller.videoPlayerControllerList[index].play();
-          // controller.visible.value = true;
-          Future.delayed(const Duration(milliseconds: 500), () {
-            // controller.visible.value = false;
-          });
           controller.refreshView();
           controller.animationController.repeat();
           controller.initNearByVideos(index);
+
+          // The proxy server handles caching automatically
+          // We just need to mark this URL for tracking purposes
           if (!controller.caching.contains(controller.videoList[index].url)) {
             controller.cacheVideo(index);
           }
+
           controller.visible.value = false;
         }
       },

@@ -6,6 +6,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart'; // For cachin
 import 'package:video_player/video_player.dart'; // For video playback
 
 import 'models/video_model.dart'; // For video model
+import 'video_proxy_server.dart'; // For video proxy server
 
 /// A service that provides methods to obtain video player controllers.
 ///
@@ -32,10 +33,15 @@ class CachedVideoControllerService extends VideoControllerService {
   /// The cache manager used to store and retrieve video files.
   final BaseCacheManager _cacheManager;
 
+  /// The proxy server used for streaming and caching videos.
+  late final VideoProxyServer _proxyServer;
+
   /// Creates a new [CachedVideoControllerService] with the provided cache manager.
   ///
   /// [_cacheManager] is responsible for handling the caching operations.
-  CachedVideoControllerService(this._cacheManager);
+  CachedVideoControllerService(this._cacheManager) {
+    _proxyServer = VideoProxyServer(_cacheManager);
+  }
 
   @override
   Future<VideoPlayerController> getControllerForVideo(
@@ -45,36 +51,32 @@ class CachedVideoControllerService extends VideoControllerService {
     final url = videoModel.url;
 
     if (isCaching) {
-      FileInfo?
-      fileInfo; // Variable to store file info if video is found in cache
-
       try {
-        // Attempt to retrieve video file from cache
-        fileInfo = await _cacheManager.getFileFromCache(url);
-      } catch (e) {
-        // Log error if encountered while getting video from cache
-        log('Error getting video from cache: $e');
-      }
+        // Start proxy server if not running
+        if (!_proxyServer.isRunning) {
+          await _proxyServer.start();
+        }
 
-      // Check if video file was found in cache
-      if (fileInfo != null) {
-        // Return VideoPlayerController for the cached file with additional options
-        return VideoPlayerController.file(
-          fileInfo.file,
+        // Register the URL with the proxy server
+        final proxyUrl = await _proxyServer.registerUrl(url);
+
+        log('Playing video through proxy: $proxyUrl');
+
+        // Return a controller that points to our local proxy
+        return VideoPlayerController.networkUrl(
+          Uri.parse(proxyUrl),
+          httpHeaders: videoModel.httpHeaders ?? {},
           videoPlayerOptions: videoModel.videoPlayerOptions,
         );
-      }
-
-      try {
-        // If video is not found in cache, attempt to download it
-        _cacheManager.downloadFile(url);
       } catch (e) {
-        // Log error if encountered while downloading video
-        log('Error downloading video: $e');
+        // Log error if encountered while setting up proxy for video
+        log('Error setting up proxy for video: $e', error: e);
+        // Fallback to direct network URL if proxy fails
       }
     }
 
-    // Return VideoPlayerController for the video from the network with additional options
+    // Default to direct network URL if caching is disabled or if proxy setup failed
+    log('Playing video directly: $url');
     return VideoPlayerController.networkUrl(
       Uri.parse(url),
       httpHeaders: videoModel.httpHeaders ?? {},

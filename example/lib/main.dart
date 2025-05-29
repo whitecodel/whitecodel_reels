@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
               builder: (context, index, child, videoPlayerController,
                   pageController) {
                 // Widget builder logic
-                return Container();
+                return child;
               }),
         ));
   }
