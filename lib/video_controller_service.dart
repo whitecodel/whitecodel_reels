@@ -49,6 +49,7 @@ class CachedVideoControllerService extends VideoControllerService {
     bool isCaching,
   ) async {
     final url = videoModel.url;
+    final headers = videoModel.httpHeaders ?? {};
 
     if (isCaching) {
       try {
@@ -57,15 +58,16 @@ class CachedVideoControllerService extends VideoControllerService {
           await _proxyServer.start();
         }
 
-        // Register the URL with the proxy server
-        final proxyUrl = await _proxyServer.registerUrl(url);
+        // Register the URL with the proxy server and pass headers
+        final proxyUrl = await _proxyServer.registerUrl(url, headers: headers);
 
         log('Playing video through proxy: $proxyUrl');
 
-        // Return a controller that points to our local proxy
+        // When using proxy server, we don't need to include headers in VideoPlayerController
+        // since they were already passed to the proxy server
         return VideoPlayerController.networkUrl(
           Uri.parse(proxyUrl),
-          httpHeaders: videoModel.httpHeaders ?? {},
+          // No need to include headers here as they're handled by the proxy
           videoPlayerOptions: videoModel.videoPlayerOptions,
         );
       } catch (e) {
@@ -79,7 +81,7 @@ class CachedVideoControllerService extends VideoControllerService {
     log('Playing video directly: $url');
     return VideoPlayerController.networkUrl(
       Uri.parse(url),
-      httpHeaders: videoModel.httpHeaders ?? {},
+      httpHeaders: headers,
       videoPlayerOptions: videoModel.videoPlayerOptions,
     );
   }

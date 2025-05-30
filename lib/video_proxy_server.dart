@@ -11,7 +11,7 @@ class VideoProxyServer {
   static VideoProxyServer? _instance;
   HttpServer? _server;
   bool _isRunning = false;
-  final Map<String, String> _proxyMap = {};
+  final Map<String, _ProxyResource> _proxyMap = {};
   final BaseCacheManager _cacheManager;
   int _port = 8080;
 
@@ -110,14 +110,14 @@ class VideoProxyServer {
   }
 
   /// Registers a URL with the proxy server and returns a local URL to access it
-  Future<String> registerUrl(String url) async {
+  Future<String> registerUrl(String url, {Map<String, String>? headers}) async {
     if (!_isRunning) {
       await start();
     }
 
     // Create unique ID for this video URL
     String videoId = base64Encode(url.codeUnits);
-    _proxyMap[videoId] = url;
+    _proxyMap[videoId] = _ProxyResource(url, headers ?? {});
 
     // Log to help with debugging
     log('Registered proxy URL for: $url');
@@ -129,13 +129,15 @@ class VideoProxyServer {
   /// Handles incoming HTTP requests
   Future<void> _handleRequest(HttpRequest request) async {
     final path = request.uri.path.substring(1); // Remove leading slash
-    final originalUrl = _proxyMap[path];
+    final resource = _proxyMap[path];
 
-    if (originalUrl == null) {
+    if (resource == null) {
       request.response.statusCode = HttpStatus.notFound;
       await request.response.close();
       return;
     }
+
+    final originalUrl = resource.url;
 
     try {
       // Check if file is already in cache and fully downloaded
@@ -152,7 +154,7 @@ class VideoProxyServer {
 
     // Not fully cached, stream and cache simultaneously
     log('Streaming video content: $originalUrl');
-    await _streamAndCache(request, originalUrl);
+    await _streamAndCache(request, resource);
   }
 
   /// Serves content directly from the cache
@@ -213,13 +215,20 @@ class VideoProxyServer {
   }
 
   /// Streams content from the original URL while caching it
-  Future<void> _streamAndCache(HttpRequest request, String url) async {
+  Future<void> _streamAndCache(
+    HttpRequest request,
+    _ProxyResource resource,
+  ) async {
     final response = request.response;
     final client = http.Client();
     try {
       final rangeHeader = request.headers.value('range');
 
-      final req = http.Request('GET', Uri.parse(url));
+      final req = http.Request('GET', Uri.parse(resource.url));
+
+      // Apply the original headers to the request
+      req.headers.addAll(resource.headers);
+
       if (rangeHeader != null) {
         req.headers['Range'] = rangeHeader;
         log('📥 Requested range: $rangeHeader');
@@ -261,7 +270,7 @@ class VideoProxyServer {
       // Save full content to cache only if it wasn't a partial range request
       if (shouldCache && cacheSink != null) {
         _cacheManager
-            .putFile(url, cacheSink.takeBytes(), fileExtension: 'mp4')
+            .putFile(resource.url, cacheSink.takeBytes(), fileExtension: 'mp4')
             .then((f) => log('✅ Cached file: ${f.path}'))
             .catchError((e) => log('❌ Cache error: $e'));
       }
@@ -275,4 +284,12 @@ class VideoProxyServer {
       client.close();
     }
   }
+}
+
+/// Class to store both URL and headers for a proxied resource
+class _ProxyResource {
+  final String url;
+  final Map<String, String> headers;
+
+  _ProxyResource(this.url, this.headers);
 }
