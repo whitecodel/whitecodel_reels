@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:http/http.dart' as http;
 
@@ -35,6 +36,8 @@ class VideoProxyServer {
   /// Starts the proxy server on an available port
   Future<void> start({int preferredPort = 0}) async {
     if (_isRunning) return;
+
+    await _cacheManager.emptyCache();
 
     try {
       if (preferredPort > 0) {
@@ -134,79 +137,66 @@ class VideoProxyServer {
       return;
     }
 
-    // Check if the file is already in the cache
-    FileInfo? fileInfo;
-    try {
-      fileInfo = await _cacheManager.getFileFromCache(originalUrl);
-    } catch (e) {
-      log('Error checking cache: $e');
-    }
-
-    if (fileInfo != null) {
-      // File is in cache, serve directly from cache
-      log('Serving from cache: $originalUrl');
-      await _serveFromFile(request.response, fileInfo.file);
-    } else {
-      // File is not in cache, stream and cache simultaneously
-      log('Serving from source URL (not cached): $originalUrl');
-      await _streamAndCache(request.response, originalUrl);
-    }
-  }
-
-  /// Serves content from a file
-  Future<void> _serveFromFile(HttpResponse response, File file) async {
-    response.statusCode = HttpStatus.ok;
-    response.headers.contentType = ContentType.parse('video/mp4');
-    response.headers.add('Access-Control-Allow-Origin', '*');
-
-    final fileLength = await file.length();
-    response.contentLength = fileLength;
-    log(
-      'Serving cached file of size: ${(fileLength / 1024).toStringAsFixed(2)} KB',
-    );
-
-    await response.addStream(file.openRead());
-    await response.close();
+    // Always stream the content to ensure smooth playback
+    log('Streaming video content: $originalUrl');
+    await _streamAndCache(request, originalUrl);
   }
 
   /// Streams content from the original URL while caching it
-  Future<void> _streamAndCache(HttpResponse response, String url) async {
+  Future<void> _streamAndCache(HttpRequest request, String url) async {
+    final response = request.response;
+    final client = http.Client();
     try {
-      final client = http.Client();
+      final rangeHeader = request.headers.value('range');
+
       final req = http.Request('GET', Uri.parse(url));
-      final streamedResponse = await client.send(req);
-
-      response.statusCode = streamedResponse.statusCode;
-      streamedResponse.headers.forEach((key, value) {
-        response.headers.add(key, value);
-      });
-
-      // Set CORS headers
-      response.headers.add('Access-Control-Allow-Origin', '*');
-
-      // Stream to cache and client simultaneously
-      log('Downloading and caching: $url');
-      final bytes = await streamedResponse.stream.toBytes();
-      log('Downloaded ${bytes.length / 1024} KB, saving to cache');
-
-      final cacheFile = await _cacheManager.putFile(
-        url,
-        bytes,
-        fileExtension: 'mp4',
-      );
-
-      log('File saved to cache: ${cacheFile.path}');
-      await response.addStream(cacheFile.readAsBytes().asStream());
-      await response.close();
-      client.close();
-    } catch (e) {
-      log('Error streaming video: $e');
-      try {
-        response.statusCode = HttpStatus.internalServerError;
-        await response.close();
-      } catch (_) {
-        // Ignore if already closed
+      if (rangeHeader != null) {
+        req.headers['Range'] = rangeHeader;
+        log('📥 Requested range: $rangeHeader');
       }
+
+      final streamedResponse = await client.send(req);
+      final contentType =
+          streamedResponse.headers['content-type'] ?? 'video/mp4';
+      final contentLength = streamedResponse.headers['content-length'];
+      final contentRange = streamedResponse.headers['content-range'];
+
+      // Status: 206 for partial, 200 otherwise
+      response.statusCode = streamedResponse.statusCode;
+      response.headers.set('Content-Type', contentType);
+      if (contentLength != null) {
+        response.headers.set('Content-Length', contentLength);
+      }
+      if (contentRange != null) {
+        response.headers.set('Content-Range', contentRange);
+      }
+
+      response.headers.set('Accept-Ranges', 'bytes');
+      response.headers.set('Access-Control-Allow-Origin', '*');
+
+      // Start streaming
+      await response.flush();
+
+      final cacheSink = BytesBuilder();
+      await for (final chunk in streamedResponse.stream) {
+        response.add(chunk);
+        await response.flush(); // stream to player
+        cacheSink.add(chunk);
+      }
+
+      // Save full/partial content to cache
+      _cacheManager
+          .putFile(url, cacheSink.takeBytes(), fileExtension: 'mp4')
+          .then((f) => log('✅ Cached file: ${f.path}'))
+          .catchError((e) => log('❌ Cache error: $e'));
+
+      await response.close();
+    } catch (e) {
+      log('❌ Streaming error: $e');
+      response.statusCode = HttpStatus.internalServerError;
+      await response.close();
+    } finally {
+      client.close();
     }
   }
 }
