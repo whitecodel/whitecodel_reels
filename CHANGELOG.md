@@ -1,3 +1,7 @@
+## 0.0.9
+
+- Videos are streamed and cached simultaneously via a proxy — no extra bandwidth usage, just better performance
+
 ## 0.0.8+1
 
 - README.md updated with new features and usage instructions
