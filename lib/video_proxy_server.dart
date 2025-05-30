@@ -137,9 +137,79 @@ class VideoProxyServer {
       return;
     }
 
-    // Always stream the content to ensure smooth playback
+    try {
+      // Check if file is already in cache and fully downloaded
+      final fileInfo = await _cacheManager.getFileFromCache(originalUrl);
+      if (fileInfo != null) {
+        // File is completely cached, serve directly from cache
+        log('Serving video from cache: $originalUrl');
+        await _streamFromCache(request, fileInfo, originalUrl);
+        return;
+      }
+    } catch (e) {
+      log('Error checking cache: $e');
+    }
+
+    // Not fully cached, stream and cache simultaneously
     log('Streaming video content: $originalUrl');
     await _streamAndCache(request, originalUrl);
+  }
+
+  /// Serves content directly from the cache
+  Future<void> _streamFromCache(
+    HttpRequest request,
+    FileInfo fileInfo,
+    String url,
+  ) async {
+    final response = request.response;
+    final File file = fileInfo.file;
+    final rangeHeader = request.headers.value('range');
+
+    try {
+      final stat = await file.stat();
+      final fileSize = stat.size;
+
+      if (rangeHeader == null) {
+        // Full file request
+        response.statusCode = HttpStatus.ok;
+        response.headers.set('Content-Type', 'video/mp4');
+        response.headers.set('Content-Length', fileSize.toString());
+        response.headers.set('Accept-Ranges', 'bytes');
+        response.headers.set('Access-Control-Allow-Origin', '*');
+
+        await response.addStream(file.openRead());
+      } else {
+        // Handle range request
+        final regExp = RegExp(r'bytes=(\d+)-(\d+)?');
+        final match = regExp.firstMatch(rangeHeader);
+
+        if (match != null) {
+          final startByte = int.parse(match.group(1)!);
+          final endByte = match.group(2) != null
+              ? int.parse(match.group(2)!)
+              : fileSize - 1;
+
+          final contentLength = endByte - startByte + 1;
+
+          response.statusCode = HttpStatus.partialContent;
+          response.headers.set('Content-Type', 'video/mp4');
+          response.headers.set('Content-Length', contentLength.toString());
+          response.headers.set(
+            'Content-Range',
+            'bytes $startByte-$endByte/$fileSize',
+          );
+          response.headers.set('Accept-Ranges', 'bytes');
+          response.headers.set('Access-Control-Allow-Origin', '*');
+
+          await response.addStream(file.openRead(startByte, endByte + 1));
+        }
+      }
+    } catch (e) {
+      log('Error streaming from cache: $e');
+      response.statusCode = HttpStatus.internalServerError;
+    } finally {
+      await response.close();
+    }
   }
 
   /// Streams content from the original URL while caching it
@@ -177,18 +247,24 @@ class VideoProxyServer {
       // Start streaming
       await response.flush();
 
-      final cacheSink = BytesBuilder();
+      // Only cache if we're not handling a range request or we're handling the full file
+      final shouldCache =
+          rangeHeader == null || streamedResponse.statusCode == HttpStatus.ok;
+      final cacheSink = shouldCache ? BytesBuilder() : null;
+
       await for (final chunk in streamedResponse.stream) {
         response.add(chunk);
         await response.flush(); // stream to player
-        cacheSink.add(chunk);
+        if (shouldCache) cacheSink?.add(chunk);
       }
 
-      // Save full/partial content to cache
-      _cacheManager
-          .putFile(url, cacheSink.takeBytes(), fileExtension: 'mp4')
-          .then((f) => log('✅ Cached file: ${f.path}'))
-          .catchError((e) => log('❌ Cache error: $e'));
+      // Save full content to cache only if it wasn't a partial range request
+      if (shouldCache && cacheSink != null) {
+        _cacheManager
+            .putFile(url, cacheSink.takeBytes(), fileExtension: 'mp4')
+            .then((f) => log('✅ Cached file: ${f.path}'))
+            .catchError((e) => log('❌ Cache error: $e'));
+      }
 
       await response.close();
     } catch (e) {

@@ -9,7 +9,6 @@ import 'package:whitecodel_reels/models/video_model.dart';
 import 'package:whitecodel_reels/whitecodel_reels.dart';
 
 List<String> videos = [
-  "https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_30mb.mp4",
   "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4",
   "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_2mb.mp4",
   "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_5mb.mp4",
