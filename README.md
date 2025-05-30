@@ -17,7 +17,42 @@ To use this package, add `whitecodel_reels` as a dependency in your `pubspec.yam
 
 ```yaml
 dependencies:
-  whitecodel_reels: ^0.0.9+3
+  whitecodel_reels: ^0.0.9+4
+```
+
+## Android Configuration
+
+For caching to work properly on Android, you need to add the following permissions to your `AndroidManifest.xml` file:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+
+Also, ensure your application has the following configuration set:
+
+```xml
+<application
+    android:networkSecurityConfig="@xml/network_security_config"
+    ...
+    >
+```
+
+And create a network security configuration file at `android/app/src/main/res/xml/network_security_config.xml`:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+  <base-config cleartextTrafficPermitted="true">
+    <trust-anchors>
+      <certificates src="system" />
+    </trust-anchors>
+  </base-config>
+
+  <domain-config cleartextTrafficPermitted="true">
+    <domain includeSubdomains="true">localhost</domain>
+    <domain includeSubdomains="true">127.0.0.1</domain>
+  </domain-config>
+</network-security-config>
 ```
 
 ## Usage Example
@@ -28,7 +63,7 @@ import 'package:whitecodel_reels/models/video_model.dart';
 import 'package:whitecodel_reels/whitecodel_reels.dart';
 
 void main() async {
-  await Future.delayed(const Duration(seconds: 1));
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -59,7 +94,7 @@ class MyApp extends StatelessWidget {
               builder: (context, index, child, videoPlayerController,
                   pageController) {
                 // Widget builder logic
-                return Container();
+                return child;
               }),
         ));
   }
