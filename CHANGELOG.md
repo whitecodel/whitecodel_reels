@@ -1,3 +1,7 @@
+## 0.0.9+3
+
+- README.md updated with new features and usage instructions
+
 ## 0.0.9+2
 
 - README.md updated with new features and usage instructions
