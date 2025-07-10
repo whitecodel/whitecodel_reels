@@ -10,14 +10,14 @@ import 'whitecodel_reels_controller.dart';
 ///
 /// This widget uses [GetX] for state management and provides a TikTok-like
 /// experience with vertical scrolling between videos.
-class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
+class WhiteCodelReels extends StatelessWidget {
   /// The build context of the widget.
   final BuildContext context;
 
   /// List of video models to be displayed in the reels.
   final List<VideoModel>? videoList;
 
-  /// Custom loading widget to display while videos are initializing.
+  /// Widget to be displayed while the video is loading.
   final Widget? loader;
 
   /// Whether to cache videos for faster future playback.
@@ -25,6 +25,9 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
 
   /// The initial index to start playing videos from.
   final int startIndex;
+
+  /// The tag of the controller to be used.
+  final String? controllerTag;
 
   /// An optional builder function to customize the appearance of each video item.
   ///
@@ -36,8 +39,7 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
     Widget child,
     VideoPlayerController videoPlayerController,
     PageController pageController,
-  )?
-  builder;
+  )? builder;
 
   /// Creates a new [WhiteCodelReels] widget.
   ///
@@ -48,37 +50,45 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
   /// [builder] is an optional function to customize video item appearance.
   /// [startIndex] is the initial video index to display (defaults to 0).
   const WhiteCodelReels({
-    super.key,
+    Key? key,
     required this.context,
     this.videoList,
     this.loader,
     this.isCaching = false,
     this.builder,
     this.startIndex = 0,
-  });
+    this.controllerTag,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Get.delete<WhiteCodelReelsController>();
-    Get.lazyPut<WhiteCodelReelsController>(
-      () => WhiteCodelReelsController(
-        reelsVideoList: videoList ?? [],
-        isCaching: isCaching,
-        startIndex: startIndex,
-      ),
-    );
+    final tag = controllerTag ?? 'reels_controller';
+
+    if (!Get.isRegistered<WhiteCodelReelsController>(tag: tag)) {
+      Get.lazyPut(
+        () => WhiteCodelReelsController(
+          reelsVideoList: videoList ?? [],
+          isCaching: isCaching,
+          startIndex: startIndex,
+        ),
+        tag: tag,
+      );
+    }
+
+    final controller = Get.find<WhiteCodelReelsController>(tag: tag);
+
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Obx(
-        () => PageView.builder(
+      body: Obx(() {
+        return PageView.builder(
           controller: controller.pageController,
           itemCount: controller.pageCount.value,
           scrollDirection: Axis.vertical,
           itemBuilder: (context, index) {
-            return buildTile(index);
+            return buildTile(index, controller);
           },
-        ),
-      ),
+        );
+      }),
     );
   }
 
@@ -86,7 +96,8 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
   ///
   /// This method creates a visibility detector that manages video playback
   /// based on whether the video is currently visible to the user.
-  VisibilityDetector buildTile(int index) {
+  VisibilityDetector buildTile(
+      int index, WhiteCodelReelsController controller) {
     return VisibilityDetector(
       key: Key(index.toString()),
       onVisibilityChanged: (visibilityInfo) {
@@ -145,6 +156,7 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
               ? VideoFullScreenPage(
                   videoPlayerController:
                       controller.videoPlayerControllerList[index],
+                  controllerTag: controllerTag ?? "reels_controller",
                 )
               : builder!(
                   context,
@@ -152,6 +164,7 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
                   VideoFullScreenPage(
                     videoPlayerController:
                         controller.videoPlayerControllerList[index],
+                    controllerTag: controllerTag ?? "reels_controller",
                   ),
                   controller.videoPlayerControllerList[index],
                   controller.pageController,
@@ -170,16 +183,21 @@ class WhiteCodelReels extends GetView<WhiteCodelReelsController> {
 class VideoFullScreenPage extends StatelessWidget {
   /// The controller for the video being displayed.
   final VideoPlayerController videoPlayerController;
+  final String? controllerTag;
 
   /// Creates a new [VideoFullScreenPage] widget.
   ///
   /// [videoPlayerController] is required and must be initialized before use.
-  const VideoFullScreenPage({super.key, required this.videoPlayerController});
+  const VideoFullScreenPage(
+      {super.key,
+      required this.videoPlayerController,
+      required this.controllerTag});
 
   @override
   Widget build(BuildContext context) {
-    WhiteCodelReelsController controller =
-        Get.find<WhiteCodelReelsController>();
+    WhiteCodelReelsController controller = Get.find<WhiteCodelReelsController>(
+        tag: controllerTag ?? "reels_controller");
+
     return Stack(
       children: [
         SizedBox(
@@ -188,8 +206,7 @@ class VideoFullScreenPage extends StatelessWidget {
           child: FittedBox(
             fit: BoxFit.cover,
             child: SizedBox(
-              width:
-                  MediaQuery.of(context).size.height *
+              width: MediaQuery.of(context).size.height *
                   videoPlayerController.value.aspectRatio,
               height: MediaQuery.of(context).size.height,
               child: VideoPlayer(videoPlayerController),
