@@ -39,7 +39,8 @@ class WhiteCodelReels extends StatelessWidget {
     Widget child,
     VideoPlayerController videoPlayerController,
     PageController pageController,
-  )? builder;
+  )?
+  builder;
 
   /// Creates a new [WhiteCodelReels] widget.
   ///
@@ -50,7 +51,7 @@ class WhiteCodelReels extends StatelessWidget {
   /// [builder] is an optional function to customize video item appearance.
   /// [startIndex] is the initial video index to display (defaults to 0).
   const WhiteCodelReels({
-    Key? key,
+    super.key,
     required this.context,
     this.videoList,
     this.loader,
@@ -58,7 +59,7 @@ class WhiteCodelReels extends StatelessWidget {
     this.builder,
     this.startIndex = 0,
     this.controllerTag,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +98,9 @@ class WhiteCodelReels extends StatelessWidget {
   /// This method creates a visibility detector that manages video playback
   /// based on whether the video is currently visible to the user.
   VisibilityDetector buildTile(
-      int index, WhiteCodelReelsController controller) {
+    int index,
+    WhiteCodelReelsController controller,
+  ) {
     return VisibilityDetector(
       key: Key(index.toString()),
       onVisibilityChanged: (visibilityInfo) {
@@ -188,15 +191,17 @@ class VideoFullScreenPage extends StatelessWidget {
   /// Creates a new [VideoFullScreenPage] widget.
   ///
   /// [videoPlayerController] is required and must be initialized before use.
-  const VideoFullScreenPage(
-      {super.key,
-      required this.videoPlayerController,
-      required this.controllerTag});
+  const VideoFullScreenPage({
+    super.key,
+    required this.videoPlayerController,
+    required this.controllerTag,
+  });
 
   @override
   Widget build(BuildContext context) {
     WhiteCodelReelsController controller = Get.find<WhiteCodelReelsController>(
-        tag: controllerTag ?? "reels_controller");
+      tag: controllerTag ?? "reels_controller",
+    );
 
     return Stack(
       children: [
@@ -206,7 +211,8 @@ class VideoFullScreenPage extends StatelessWidget {
           child: FittedBox(
             fit: BoxFit.cover,
             child: SizedBox(
-              width: MediaQuery.of(context).size.height *
+              width:
+                  MediaQuery.of(context).size.height *
                   videoPlayerController.value.aspectRatio,
               height: MediaQuery.of(context).size.height,
               child: VideoPlayer(videoPlayerController),
