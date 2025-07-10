@@ -1,6 +1,6 @@
 name: whitecodel_reels
 description: "A Flutter package to easily integrate instagram like reels in your app"
-version: 0.0.9+4
+version: 0.0.10
 homepage: https://github.com/whitecodel/whitecodel_reels
 
 environment:

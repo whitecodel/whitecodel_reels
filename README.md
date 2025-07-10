@@ -10,6 +10,7 @@ This package allows you to implement Instagram-like reels widgets in your Flutte
 - **Customizable**: You can customize the reels widget with your own design and layout.
 - **Interactive**: You can add interactive elements to the reels widget.
 - **Easy to use**: You can easily integrate the reels widget in your Flutter application with minimal code.
+- **Multiscreen Support**: Use the `controllerTag` parameter to create multiple independent reels widgets on different screens or pages.
 
 ## Installation
 
@@ -91,6 +92,7 @@ class MyApp extends StatelessWidget {
                         'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4'),
               ),
               isCaching: true,
+              controllerTag: "home_reels", // Use a unique tag for each screen
               builder: (context, index, child, videoPlayerController,
                   pageController) {
                 // Widget builder logic
@@ -99,6 +101,23 @@ class MyApp extends StatelessWidget {
         ));
   }
 }
+```
+
+## Multiscreen Support
+
+You can use multiple `WhiteCodelReels` widgets on different screens or pages by providing a unique `controllerTag` for each instance. This ensures each reels widget maintains its own state and playback independently.
+
+```dart
+// Example: Using different controllerTag for different screens
+WhiteCodelReels(
+  controllerTag: "home_reels",
+  // ...other params...
+);
+
+WhiteCodelReels(
+  controllerTag: "profile_reels",
+  // ...other params...
+);
 ```
 
 ## Future Plans

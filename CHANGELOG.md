@@ -1,3 +1,7 @@
+## 0.0.10
+
+- Multiscreen support: Use `controllerTag` to assign unique controllers for each screen or page, enabling multiple independent reels widgets in the same app.
+
 ## 0.0.9+4
 
 - README.md updated with new features and usage instructions
